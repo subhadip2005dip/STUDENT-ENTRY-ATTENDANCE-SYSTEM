@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>School Management System</title>
+
+  <style>
+    *{box-sizing:border-box;font-family:Segoe UI}
+    body{
+      margin:0;min-height:100vh;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      display:flex;justify-content:center;align-items:center;
+    }
+    .app{width:900px;background:#fff;border-radius:16px;
+      padding:20px;box-shadow:0 20px 40px rgba(0,0,0,.2);
+      animation:fadeIn 1s}
+    h1{text-align:center}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .card{background:#f4f6ff;border-radius:12px;padding:15px}
+    .card h2{margin-top:0}
+    input,select{
+      width:100%;padding:8px;margin:6px 0;border-radius:6px;border:1px solid #ccc
+    }
+    button{
+      padding:8px 14px;border:none;border-radius:6px;
+      background:#4f6ef7;color:#fff;cursor:pointer;
+      transition:.3s
+    }
+    button:hover{transform:scale(1.05)}
+    .danger{background:#ff4d4d}
+    pre{
+      background:#111;color:#0f0;padding:10px;
+      border-radius:8px;max-height:200px;overflow:auto
+    }
+    #toast{
+      position:fixed;bottom:20px;right:20px;
+      background:#222;color:#fff;padding:10px 16px;
+      border-radius:8px;opacity:0;transition:.4s
+    }
+    #toast.show{opacity:1}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  </style>
+</head>
+
+<body>
+<div class="app">
+<h1>🏫 School Student & Attendance System</h1>
+
+<div class="grid">
+
+<!-- STUDENT SECTION -->
+<div class="card">
+<h2>➕ Add Student</h2>
+<input id="sid" placeholder="Student ID">
+<input id="sname" placeholder="Name">
+<input id="sclass" placeholder="Class">
+<button onclick="addStudent()">Add Student</button>
+
+<h2>✏️ Edit Student</h2>
+<input id="esid" placeholder="Student ID">
+<input id="esname" placeholder="New Name">
+<input id="esclass" placeholder="New Class">
+<button onclick="editStudent()">Update Student</button>
+
+<h2>🗑️ Delete Student</h2>
+<input id="dsid" placeholder="Student ID">
+<button class="danger" onclick="deleteStudent()">Delete Student</button>
+</div>
+
+<!-- ATTENDANCE SECTION -->
+<div class="card">
+<h2>📝 Mark Attendance</h2>
+<input id="aid" placeholder="Student ID">
+<input id="aclass" placeholder="Class">
+<select id="astatus">
+  <option>Present</option>
+  <option>Absent</option>
+</select>
+<button onclick="markAttendance()">Mark Attendance</button>
+
+<h2>✏️ Edit Attendance</h2>
+<input id="eaid" placeholder="Student ID">
+<input id="eadate" placeholder="Date (YYYY-MM-DD HH:MM:SS)">
+<input id="eaclass" placeholder="Class">
+<select id="eastatus">
+  <option>Present</option>
+  <option>Absent</option>
+</select>
+<button onclick="editAttendance()">Update Attendance</button>
+
+<h2>🗑️ Delete Attendance</h2>
+<input id="daid" placeholder="Student ID">
+<button class="danger" onclick="deleteAttendance()">Delete Attendance</button>
+</div>
+
+</div>
+
+<div class="card">
+<h2>📋 View Data</h2>
+<button onclick="viewStudents()">View Students</button>
+<button onclick="viewAttendance()">View Attendance</button>
+<pre id="output"></pre>
+</div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+const BASE_URL = "http://127.0.0.1:8000";
+
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2500);
+}
+
+/* ---------------- STUDENT ---------------- */
+
+async function addStudent(){
+  const res = await fetch(BASE_URL+"/students/add",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      id:sid.value,name:sname.value,class_id:sclass.value
+    })
+  });
+  toast((await res.json()).message);
+}
+
+async function editStudent(){
+  const res = await fetch(BASE_URL+"/student/edit/"+esid.value,{
+    method:"PUT",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      id:esid.value,name:esname.value,class_id:esclass.value
+    })
+  });
+  toast((await res.json()).message);
+}
+
+async function deleteStudent(){
+  const res = await fetch(BASE_URL+"/student/delete/"+dsid.value,{
+    method:"DELETE"
+  });
+  toast((await res.json()).message);
+}
+
+async function viewStudents(){
+  const r=await fetch(BASE_URL+"/student/view");
+  output.textContent=JSON.stringify(await r.json(),null,2);
+}
+
+/* ---------------- ATTENDANCE ---------------- */
+
+async function markAttendance(){
+  const res = await fetch(BASE_URL+"/student/attendance/add",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      id:aid.value,
+      date:"",
+      class_id:aclass.value,
+      status:astatus.value
+    })
+  });
+  toast((await res.json()).message);
+}
+
+async function editAttendance(){
+  const res = await fetch(BASE_URL+"/student/attendance/edit/"+eaid.value,{
+    method:"PUT",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      id:eaid.value,
+      date:eadate.value,
+      class_id:eaclass.value,
+      status:eastatus.value
+    })
+  });
+  toast((await res.json()).message);
+}
+
+async function deleteAttendance(){
+  const res = await fetch(BASE_URL+"/student/attendance/delete/"+daid.value,{
+    method:"DELETE"
+  });
+  toast((await res.json()).message);
+}
+
+async function viewAttendance(){
+  const r=await fetch(BASE_URL+"/student/attendance/view");
+  output.textContent=JSON.stringify(await r.json(),null,2);
+}
+</script>
+
+</body>
+</html>
