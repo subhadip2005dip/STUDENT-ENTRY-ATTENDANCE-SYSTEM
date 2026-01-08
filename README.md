@@ -51,3 +51,44 @@ This project allows managing **students and attendance records** with a clean UI
 ```bash
 git clone https://github.com/your-username/school-management.git
 cd school-management
+
+Create a virtual environment (recommended)
+
+python -m venv venv
+# Activate on Windows
+.\venv\Scripts\activate
+# Activate on Linux/Mac
+source venv/bin/activate
+
+
+Install dependencies
+
+pip install fastapi uvicorn pydantic
+
+
+Run the FastAPI server
+
+uvicorn main:app --reload
+
+
+Open the frontend
+
+Open index.html in your browser.
+
+Make sure the BASE_URL in the JS matches your FastAPI server (http://127.0.0.1:8000).
+
+📝 API Endpoints
+Students
+Method	Endpoint	Description
+POST	/students/add	Add a new student
+GET	/student/view	View all students
+GET	/student/view/{id}	View student by ID
+PUT	/student/edit/{id}	Edit student details
+DELETE	/student/delete/{id}	Delete a student
+Attendance
+Method	Endpoint	Description
+POST	/student/attendance/add	Mark student attendance
+GET	/student/attendance/view	View all attendance records
+PUT	/student/attendance/edit/{id}	Edit attendance record
+DELETE	/student/attendance/delete/{id}	Delete attendance record
+
